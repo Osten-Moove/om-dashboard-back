@@ -131,26 +131,20 @@ export class GraphicService {
     return { title: graph.title, type: graph.type, data: graphData.dataFunctions.data };
   }
 
-  private replaceVariablesWithParams(listQueries: string, params: Array<string>) {
-    let replacedString = listQueries;
-
-    params
-      .join(',')
-      .split(',')
-      .forEach((param) => {
-        replacedString = replacedString.replace('$', param.trim());
-      });
-
-    return replacedString;
+  private replaceParams(dataFunctions: string, params: Array<string>): string {
+    return dataFunctions.replace(/\$(\d+)/g, (_, index: string) => {
+      const i = parseInt(index) - 1;
+      return params[i] || '';
+    });
   }
 
   async generateMultipleGraphs(dashboardId: string, params: Array<string>) {
     const graphs = await this.graphicRepository.find({ where: { dashboard: { id: dashboardId } } });
-
     const graphsWithUnitsInserted = graphs.map((graph) => {
       const listQueries = JSON.stringify(graph.dataFunctions);
-      const replaceVariablesWithUnitsIds = this.replaceVariablesWithParams(listQueries, params);
-      Object.assign(graph, { dataFunctions: JSON.parse(replaceVariablesWithUnitsIds) });
+      const replaceVariablesParams = this.replaceParams(listQueries, params);
+
+      Object.assign(graph, { dataFunctions: JSON.parse(replaceVariablesParams) });
       return graph;
     });
 

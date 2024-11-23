@@ -19,7 +19,6 @@ export class DashboardQueriesModule {
   static config: DecoratorConfig;
   static forRoot(database: DataSourceOptions, config?: DecoratorConfig): DynamicModule {
     this.config = config;
-    if (!this.config.secondarySecret) this.config.secondarySecret = this.config.secret + 'secondary';
     const entities = [VariablesEntity, DashboardEntity, DashboardCacheEntity, GraphicEntity];
     const services = [VariablesService, DashboardService, GraphicService];
     const exports = [...services];
